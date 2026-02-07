@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabaseClient";
+import GoogleSignInButton from "@/app/components/GoogleSignInButton";
 
 export const dynamic = "force-dynamic";
 
@@ -81,6 +82,7 @@ export default async function Home() {
           )}
         </div>
       </main>
+      <GoogleSignInButton />
     </div>
   );
 }
