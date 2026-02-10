@@ -14,7 +14,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <div className="min-h-screen bg-black px-6 pb-12 pt-6 text-zinc-50">
       <main className="mx-auto mt-6 flex w-full max-w-3xl flex-col gap-6">
         <header className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight">
+          <h1 className="text-5xl font-semibold tracking-tight">
             The Humor Project
           </h1>
           <p className="text-sm text-zinc-400">
