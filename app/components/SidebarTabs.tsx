@@ -6,7 +6,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type SidebarTabsProps = {
   displayName: string;
-  activeTab: "welcome" | "bugs";
+  activeTab: "welcome" | "bugs" | "captions";
   children: React.ReactNode;
 };
 
@@ -53,6 +53,16 @@ export default function SidebarTabs({
               }`}
             >
               Bug Reports
+            </Link>
+            <Link
+              href="/captions"
+              className={`block w-full rounded-full px-6 py-3 text-left text-sm font-semibold tracking-wide transition ${
+                activeTab === "captions"
+                  ? "border border-zinc-700 bg-zinc-900 text-white shadow-[0_0_0_1px_rgba(63,63,70,0.6)]"
+                  : "border border-zinc-800 bg-zinc-950 text-zinc-200 hover:bg-zinc-900"
+              }`}
+            >
+              Captions
             </Link>
           </div>
 
