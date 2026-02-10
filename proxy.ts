@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { isAllowedEmailDomain } from "@/lib/auth/allowed-domains";
 import { supabaseAnonKey, supabaseUrl } from "@/lib/supabase/config";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next();
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
