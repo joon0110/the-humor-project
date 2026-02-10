@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import SidebarTabs from "@/app/components/SidebarTabs";
+import { getDisplayName } from "@/lib/auth/user-display";
 
 export const dynamic = "force-dynamic";
 
@@ -29,22 +29,7 @@ export default async function BugReportPage() {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.auth.getUser();
 
-  const email = data.user?.email ?? "";
-  const displayName =
-    data.user?.user_metadata?.full_name ??
-    data.user?.user_metadata?.name ??
-    email;
-  const domain = email.split("@")[1] ?? "";
-  const isAllowed =
-    domain.toLowerCase() === "columbia.edu" ||
-    domain.toLowerCase() === "barnard.edu";
-
-  if (!data.user || !isAllowed) {
-    if (data.user && !isAllowed) {
-      await supabase.auth.signOut();
-    }
-    redirect("/login");
-  }
+  const displayName = getDisplayName(data.user);
 
   let bugReports: BugReport[] = [];
   let errorMessage: string | null = null;
@@ -67,7 +52,7 @@ export default async function BugReportPage() {
           </p>
         </header>
 
-        <div className="max-h-[70vh] overflow-y-auto pr-2">
+        <div className="max-h-[calc(100vh-12rem)] overflow-y-auto pr-2">
           {errorMessage ? (
             <div className="rounded-lg border border-red-900/40 bg-red-950/40 p-4 text-sm text-red-200">
               Failed to load bug reports: {errorMessage}

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isAllowedEmailDomain } from "@/lib/auth/allowed-domains";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -10,12 +11,8 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code);
     const { data } = await supabase.auth.getUser();
     const email = data.user?.email ?? "";
-    const domain = email.split("@")[1] ?? "";
-    const isAllowed =
-      domain.toLowerCase() === "columbia.edu" ||
-      domain.toLowerCase() === "barnard.edu";
 
-    if (!isAllowed) {
+    if (!isAllowedEmailDomain(email)) {
       await supabase.auth.signOut();
       return NextResponse.redirect(new URL("/login?error=domain", request.url));
     }

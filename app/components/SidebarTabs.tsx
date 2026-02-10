@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import SignOutButton from "@/app/components/SignOutButton";
 
 type SidebarTabsProps = {
   displayName: string;
@@ -16,23 +16,14 @@ export default function SidebarTabs({
   children,
 }: SidebarTabsProps) {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
-  const [isSigningOut, setIsSigningOut] = useState(false);
-
   const formattedName = useMemo(() => {
     const trimmed = displayName.trim();
     return trimmed.length > 0 ? trimmed : "Account";
   }, [displayName]);
 
-  const handleSignOut = async () => {
-    setIsSigningOut(true);
-    const supabase = createSupabaseBrowserClient();
-    await supabase.auth.signOut();
-    window.location.href = "/login";
-  };
-
   return (
     <div className="min-h-screen bg-black text-zinc-50">
-      <aside className="fixed left-0 top-0 flex h-screen w-72 flex-col border-r border-zinc-900 bg-black px-8 pb-10 pt-12">
+      <aside className="fixed left-0 top-0 flex h-screen w-48 flex-col border-r border-zinc-900 bg-black px-6 pb-10 pt-12">
           <div className="space-y-3">
             <Link
               href="/welcome"
@@ -70,14 +61,7 @@ export default function SidebarTabs({
             <div className="relative">
               {isAccountOpen && (
                 <div className="absolute -top-14 left-0 w-full rounded-2xl border border-zinc-800 bg-zinc-950/95 p-3 shadow-lg">
-                  <button
-                    type="button"
-                    onClick={handleSignOut}
-                    disabled={isSigningOut}
-                    className="w-full rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {isSigningOut ? "Signing out..." : "Sign out"}
-                  </button>
+                  <SignOutButton />
                 </div>
               )}
               <button
@@ -99,7 +83,7 @@ export default function SidebarTabs({
           </div>
         </aside>
 
-        <main className="ml-72 px-12 pb-12 pt-12">{children}</main>
+        <main className="ml-48 px-12 pb-12 pt-12">{children}</main>
     </div>
   );
 }
