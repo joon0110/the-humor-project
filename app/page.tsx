@@ -1,5 +1,6 @@
-import { supabase } from "@/lib/supabaseClient";
-import GoogleSignInButton from "@/app/components/GoogleSignInButton";
+import { redirect } from "next/navigation";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import SignOutButton from "@/app/components/SignOutButton";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,7 @@ type BugReport = {
 };
 
 async function fetchBugReports() {
+  const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("bug_reports")
     .select("id, subject, message, created_datetime_utc")
@@ -24,6 +26,22 @@ async function fetchBugReports() {
 }
 
 export default async function Home() {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase.auth.getUser();
+
+  const email = data.user?.email ?? "";
+  const domain = email.split("@")[1] ?? "";
+  const isAllowed =
+    domain.toLowerCase() === "columbia.edu" ||
+    domain.toLowerCase() === "barnard.edu";
+
+  if (!data.user || !isAllowed) {
+    if (data.user && !isAllowed) {
+      await supabase.auth.signOut();
+    }
+    redirect("/login");
+  }
+
   let bugReports: BugReport[] = [];
   let errorMessage: string | null = null;
 
@@ -34,9 +52,9 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-black px-6 pb-12 pt-0 text-zinc-50">
-      <div className="-mx-6 w-screen border-b border-white/10 bg-zinc-950/90 py-4 text-center text-sm font-semibold uppercase tracking-[0.3em] text-white">
-        The Humor Project
+    <div className="min-h-screen bg-black px-6 pb-12 pt-6 text-zinc-50">
+      <div className="flex justify-end">
+        <SignOutButton />
       </div>
       <main className="mx-auto mt-6 flex w-full max-w-3xl flex-col gap-6">
         <header className="space-y-2">
@@ -82,7 +100,6 @@ export default async function Home() {
           )}
         </div>
       </main>
-      <GoogleSignInButton />
     </div>
   );
 }
