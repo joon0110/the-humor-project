@@ -36,7 +36,7 @@ export default function SidebarTabs({
               Welcome
             </Link>
             <Link
-              href="/bugreports"
+              href="/bug-reports"
               className={`block w-full rounded-full px-6 py-3 text-left text-sm font-semibold tracking-wide transition ${
                 activeTab === "bugs"
                   ? "border border-zinc-700 bg-zinc-900 text-white shadow-[0_0_0_1px_rgba(63,63,70,0.6)]"
