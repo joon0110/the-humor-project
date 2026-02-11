@@ -7,7 +7,6 @@ export const dynamic = "force-dynamic";
 type Caption = {
   id: string;
   content: string | null;
-  created_datetime_utc: string;
   like_count: number;
   image: {
     id: string;
@@ -18,23 +17,11 @@ type Caption = {
 
 type CaptionSort = "recent" | "likes";
 
-function formatDateTime(value: string) {
-  return new Date(value).toISOString();
-}
-
 async function fetchCaptions(sort: CaptionSort) {
   const supabase = await createSupabaseServerClient();
-  let query = supabase
-    .from("captions")
-    .select(
-      [
-        "id",
-        "content",
-        "created_datetime_utc",
-        "like_count",
-        "image:images!inner ( id, url, image_description )",
-      ].join(", "),
-    );
+  const selectFields =
+    "id, content, like_count, image:images!inner ( id, url, image_description )" as const;
+  let query = supabase.from("captions").select(selectFields).returns<Caption[]>();
 
   if (sort === "likes") {
     query = query
@@ -50,7 +37,7 @@ async function fetchCaptions(sort: CaptionSort) {
     throw new Error(error.message);
   }
 
-  return (data ?? []) as Caption[];
+  return data ?? [];
 }
 
 type CaptionsPageProps = {
