@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import SidebarTabs from "@/app/components/SidebarTabs";
 import { getDisplayName } from "@/lib/auth/user-display";
@@ -17,7 +18,7 @@ type Caption = {
 
 type CaptionSort = "recent" | "likes";
 
-async function fetchCaptions(sort: CaptionSort) {
+const fetchCaptions = cache(async (sort: CaptionSort) => {
   const supabase = await createSupabaseServerClient();
   const selectFields =
     "id, content, like_count, image:images!inner ( id, url, image_description )" as const;
@@ -26,9 +27,12 @@ async function fetchCaptions(sort: CaptionSort) {
   if (sort === "likes") {
     query = query
       .order("like_count", { ascending: false })
-      .order("created_datetime_utc", { ascending: false });
+      .order("created_datetime_utc", { ascending: false })
+      .order("id", { ascending: false });
   } else {
-    query = query.order("created_datetime_utc", { ascending: false });
+    query = query
+      .order("created_datetime_utc", { ascending: false })
+      .order("id", { ascending: false });
   }
 
   const { data, error } = await query;
@@ -38,7 +42,7 @@ async function fetchCaptions(sort: CaptionSort) {
   }
 
   return data ?? [];
-}
+});
 
 type CaptionsPageProps = {
   searchParams?: Promise<{
