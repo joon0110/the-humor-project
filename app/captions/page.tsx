@@ -2,19 +2,10 @@ import { cache } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import SidebarTabs from "@/app/components/SidebarTabs";
 import { getDisplayName } from "@/lib/auth/user-display";
+import type { Caption } from "./types";
+import CaptionList from "./CaptionList";
 
 export const dynamic = "force-dynamic";
-
-type Caption = {
-  id: string;
-  content: string | null;
-  like_count: number;
-  image: {
-    id: string;
-    url: string | null;
-    image_description: string | null;
-  };
-};
 
 type CaptionSort = "recent" | "likes";
 
@@ -110,62 +101,7 @@ export default async function CaptionsPage({
               No captions yet.
             </div>
           ) : (
-            <ul className="space-y-4">
-              {captions.map((caption) => (
-                <li
-                  key={caption.id}
-                  className="rounded-lg border border-zinc-800 bg-zinc-950 p-4 shadow-sm"
-                >
-                  <div className="flex flex-col gap-4 sm:flex-row">
-                    <div className="aspect-[4/3] w-full overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900 sm:w-56">
-                      {caption.image?.url ? (
-                        <img
-                          src={caption.image.url}
-                          alt={
-                            caption.image.image_description ?? "Caption image"
-                          }
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-xs uppercase tracking-wide text-zinc-500">
-                          No image
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex-1">
-                      <h2 className="text-lg font-semibold">
-                        {caption.content ?? "Untitled caption"}
-                      </h2>
-                      <p className="mt-2 text-sm text-zinc-300">
-                        Likes: {caption.like_count}
-                      </p>
-                      <div className="mt-3 flex items-center gap-3 text-zinc-500">
-                        <span className="sr-only">Thumbs up</span>
-                        <svg
-                          aria-hidden="true"
-                          viewBox="0 0 24 24"
-                          className="h-[30px] w-[30px]"
-                          fill="currentColor"
-                        >
-                          <path d="M9 22H5a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h4v13Zm3-13 4.62-4.62a2.12 2.12 0 0 1 3.01 0 2.12 2.12 0 0 1 .54 2.06L18.5 9H21a2 2 0 0 1 2 2v3.5a2 2 0 0 1-.2.88l-2.4 5.1A2 2 0 0 1 18.6 22H12a2 2 0 0 1-2-2v-8.5a2 2 0 0 1 .59-1.41L12 9Z" />
-                        </svg>
-                        <span className="sr-only">Thumbs down</span>
-                        <svg
-                          aria-hidden="true"
-                          viewBox="0 0 24 24"
-                          className="h-[30px] w-[30px]"
-                          fill="currentColor"
-                        >
-                          <path d="M9 2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h4V2Zm3 13-4.62 4.62a2.12 2.12 0 0 0 0 3.01 2.12 2.12 0 0 0 2.06.54L18.5 15H21a2 2 0 0 0 2-2V9.5a2 2 0 0 0-.2-.88l-2.4-5.1A2 2 0 0 0 18.6 2H12a2 2 0 0 0-2 2v8.5a2 2 0 0 0 .59 1.41L12 15Z" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <CaptionList captions={captions} />
           )}
         </div>
       </div>
