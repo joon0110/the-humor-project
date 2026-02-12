@@ -141,6 +141,26 @@ export default async function CaptionsPage({
                       <p className="mt-2 text-sm text-zinc-300">
                         Likes: {caption.like_count}
                       </p>
+                      <div className="mt-3 flex items-center gap-3 text-zinc-500">
+                        <span className="sr-only">Thumbs up</span>
+                        <svg
+                          aria-hidden="true"
+                          viewBox="0 0 24 24"
+                          className="h-[30px] w-[30px]"
+                          fill="currentColor"
+                        >
+                          <path d="M9 22H5a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h4v13Zm3-13 4.62-4.62a2.12 2.12 0 0 1 3.01 0 2.12 2.12 0 0 1 .54 2.06L18.5 9H21a2 2 0 0 1 2 2v3.5a2 2 0 0 1-.2.88l-2.4 5.1A2 2 0 0 1 18.6 22H12a2 2 0 0 1-2-2v-8.5a2 2 0 0 1 .59-1.41L12 9Z" />
+                        </svg>
+                        <span className="sr-only">Thumbs down</span>
+                        <svg
+                          aria-hidden="true"
+                          viewBox="0 0 24 24"
+                          className="h-[30px] w-[30px]"
+                          fill="currentColor"
+                        >
+                          <path d="M9 2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h4V2Zm3 13-4.62 4.62a2.12 2.12 0 0 0 0 3.01 2.12 2.12 0 0 0 2.06.54L18.5 15H21a2 2 0 0 0 2-2V9.5a2 2 0 0 0-.2-.88l-2.4-5.1A2 2 0 0 0 18.6 2H12a2 2 0 0 0-2 2v8.5a2 2 0 0 0 .59 1.41L12 15Z" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </li>
