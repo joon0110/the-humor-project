@@ -48,6 +48,7 @@ export default async function CaptionsPage({
   const { data } = await supabase.auth.getUser();
 
   const displayName = getDisplayName(data.user);
+  const canVote = Boolean(data.user);
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const sort: CaptionSort =
     resolvedSearchParams?.sort === "likes" ? "likes" : "recent";
@@ -101,7 +102,7 @@ export default async function CaptionsPage({
               No captions yet.
             </div>
           ) : (
-            <CaptionList captions={captions} />
+            <CaptionList captions={captions} canVote={canVote} />
           )}
         </div>
       </div>
