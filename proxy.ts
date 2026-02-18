@@ -3,8 +3,24 @@ import { createServerClient } from "@supabase/ssr";
 import { isAllowedEmailDomain } from "@/lib/auth/allowed-domains";
 import { supabaseAnonKey, supabaseUrl } from "@/lib/supabase/config";
 
+function clearSupabaseCookies(request: NextRequest, response: NextResponse, storageKey: string) {
+  request.cookies
+    .getAll()
+    .filter(
+      (cookie) =>
+        cookie.name === storageKey || cookie.name.startsWith(`${storageKey}.`)
+    )
+    .forEach((cookie) => {
+      response.cookies.set(cookie.name, "", { path: "/", maxAge: 0 });
+    });
+}
+
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next();
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
@@ -19,9 +35,16 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser();
+  const user = data.user ?? null;
+
+  if (error?.code === "refresh_token_not_found") {
+    const redirectResponse = NextResponse.redirect(
+      new URL("/login", request.url)
+    );
+    clearSupabaseCookies(request, redirectResponse, "supabase.auth.token");
+    return redirectResponse;
+  }
 
   if (!user) {
     return NextResponse.redirect(new URL("/login", request.url));
@@ -37,5 +60,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/welcome", "/bugreports", "/captions"],
+  matcher: ["/welcome", "/bug-reports", "/captions", "/upload"],
 };
