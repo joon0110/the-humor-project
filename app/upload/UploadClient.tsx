@@ -55,7 +55,7 @@ function resolveContentType(file: File): string | null {
 
 export default function UploadClient() {
   const [file, setFile] = useState<File | null>(null);
-  const [isCommonUse, setIsCommonUse] = useState(false);
+  const [isPublic, setIsPublic] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [stepIndex, setStepIndex] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -159,7 +159,8 @@ export default function UploadClient() {
           },
           body: JSON.stringify({
             imageUrl: step1.cdnUrl,
-            isCommonUse,
+            isCommonUse: false,
+            isPublic,
           }),
         }
       );
@@ -224,11 +225,22 @@ export default function UploadClient() {
             >
               Image file
             </label>
+            <div className="flex flex-wrap items-center gap-3">
+              <label
+                htmlFor="upload-file"
+                className="inline-flex items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-zinc-800"
+              >
+                Choose file
+              </label>
+              <span className="text-xs text-zinc-500">
+                {file ? file.name : "No file chosen"}
+              </span>
+            </div>
             <input
               id="upload-file"
               type="file"
               accept={SUPPORTED_TYPES.join(",")}
-              className="block w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-200"
+              className="sr-only"
               onChange={(event) => {
                 const nextFile = event.target.files?.[0] ?? null;
                 setFile(nextFile);
@@ -245,10 +257,10 @@ export default function UploadClient() {
             <input
               type="checkbox"
               className="h-4 w-4 rounded border-zinc-700 bg-zinc-950"
-              checked={isCommonUse}
-              onChange={(event) => setIsCommonUse(event.target.checked)}
+              checked={isPublic}
+              onChange={(event) => setIsPublic(event.target.checked)}
             />
-            Save as common use image
+            Save as public image
           </label>
 
           <button
