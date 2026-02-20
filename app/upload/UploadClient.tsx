@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { setCaptionsPublic } from "./actions";
 
 type PresignedResponse = {
   presignedUrl: string;
@@ -160,7 +161,6 @@ export default function UploadClient() {
           body: JSON.stringify({
             imageUrl: step1.cdnUrl,
             isCommonUse: false,
-            isPublic,
           }),
         }
       );
@@ -196,6 +196,16 @@ export default function UploadClient() {
       const step4 = (await captionResponse.json()) as CaptionRecord[];
       setCaptions(step4);
       setStepIndex(STEPS.length);
+
+      if (isPublic && step4.length > 0) {
+        const captionIds = step4.map((caption) => caption.id);
+        const updateResult = await setCaptionsPublic(captionIds, true);
+        if (!updateResult.ok) {
+          setErrorMessage(
+            `Captions generated, but failed to mark them public: ${updateResult.error}`
+          );
+        }
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Unexpected error";
@@ -260,7 +270,7 @@ export default function UploadClient() {
               checked={isPublic}
               onChange={(event) => setIsPublic(event.target.checked)}
             />
-            Save as public image
+            Save generated captions as public
           </label>
 
           <button
