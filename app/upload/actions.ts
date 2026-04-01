@@ -25,7 +25,11 @@ export async function setCaptionsPublic(
   const timestamp = new Date().toISOString();
   const { data: updatedRows, error } = await supabase
     .from("captions")
-    .update({ is_public: isPublic, modified_datetime_utc: timestamp })
+    .update({
+      is_public: isPublic,
+      modified_by_user_id: data.user.id,
+      modified_datetime_utc: timestamp,
+    })
     .in("id", uniqueIds)
     .eq("profile_id", data.user.id)
     .select("id");

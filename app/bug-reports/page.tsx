@@ -50,6 +50,9 @@ export default async function BugReportPage() {
           <p className="text-sm text-zinc-400">
             Live data from Supabase.
           </p>
+          <p className="text-sm text-zinc-400">
+            This is for Week 2, connecting to do the db.
+          </p>
         </header>
 
         <div className="max-h-[calc(100vh-12rem)] overflow-y-auto pr-2">

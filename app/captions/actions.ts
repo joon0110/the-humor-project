@@ -30,11 +30,13 @@ export async function createCaptionVote({
   const { data: voteRow, error } = await supabase
     .from("caption_votes")
     .insert({
-    caption_id: captionId,
-    vote_value: voteValue,
-    profile_id: data.user.id,
-    created_datetime_utc: timestamp,
-    modified_datetime_utc: timestamp,
+      caption_id: captionId,
+      vote_value: voteValue,
+      profile_id: data.user.id,
+      created_by_user_id: data.user.id,
+      modified_by_user_id: data.user.id,
+      created_datetime_utc: timestamp,
+      modified_datetime_utc: timestamp,
     })
     .select("id")
     .single();

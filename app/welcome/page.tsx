@@ -12,8 +12,15 @@ export default async function WelcomePage() {
 
   return (
     <SidebarTabs activeTab="welcome" displayName={displayName}>
-      <div className="rounded-2xl border border-zinc-900 bg-zinc-950/80 p-8 text-2xl font-semibold">
-        Welcome
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="rounded-2xl border border-zinc-900 bg-zinc-950/80 px-14 py-16 text-center">
+          <h1 className="text-6xl font-semibold">
+            Welcome to The Humor Project
+          </h1>
+          <p className="mt-5 text-3xl text-zinc-300">
+            Spring 2026 by Joon Ahn
+          </p>
+        </div>
       </div>
     </SidebarTabs>
   );
