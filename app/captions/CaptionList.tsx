@@ -12,6 +12,11 @@ type CaptionVotes = Record<
   { vote: VoteState; count: number; voteId: number | null }
 >;
 
+type VoteFeedback = {
+  tone: "positive" | "neutral";
+  message: string;
+};
+
 type CaptionListProps = {
   captions: Caption[];
   canVote: boolean;
@@ -31,6 +36,9 @@ export default function CaptionList({ captions, canVote }: CaptionListProps) {
   });
   const [pendingVotes, setPendingVotes] = useState<Record<string, boolean>>({});
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [voteFeedback, setVoteFeedback] = useState<Record<string, VoteFeedback>>(
+    {}
+  );
 
   const applyVote = (
     current: { vote: VoteState; count: number },
@@ -87,6 +95,13 @@ export default function CaptionList({ captions, canVote }: CaptionListProps) {
         : previousState.voteId;
 
     setPendingVotes((prev) => ({ ...prev, [id]: true }));
+    setVoteFeedback((prev) => ({
+      ...prev,
+      [id]: {
+        tone: "neutral",
+        message: direction === "up" ? "Submitting upvote..." : "Submitting downvote...",
+      },
+    }));
     setVotes((prev) => ({
       ...prev,
       [id]: { ...nextState, voteId: nextVoteId },
@@ -152,13 +167,25 @@ export default function CaptionList({ captions, canVote }: CaptionListProps) {
       });
     }
 
+    setVoteFeedback((prev) => ({
+      ...prev,
+      [id]: {
+        tone: nextState.vote === "none" ? "neutral" : "positive",
+        message:
+          nextState.vote === "up"
+            ? "Upvoted"
+            : nextState.vote === "down"
+              ? "Downvoted"
+              : "Vote removed",
+      },
+    }));
     setPendingVotes((prev) => ({ ...prev, [id]: false }));
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {errorMessage && (
-        <p className="text-xs text-amber-400">{errorMessage}</p>
+        <p className="text-xs text-[var(--warning)]">{errorMessage}</p>
       )}
       <ul className="space-y-4">
         {captions.map((caption) => {
@@ -167,14 +194,15 @@ export default function CaptionList({ captions, canVote }: CaptionListProps) {
             count: caption.like_count,
             voteId: null,
           };
+          const feedback = voteFeedback[caption.id];
 
           return (
             <li
               key={caption.id}
-              className="rounded-lg border border-zinc-800 bg-zinc-950 p-4 shadow-sm"
+              className="rounded-2xl border border-[var(--card-border)] bg-[var(--card)] p-5 shadow-sm"
             >
               <div className="flex flex-col gap-4 sm:flex-row">
-                <div className="aspect-[4/3] w-full overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900 sm:w-56">
+                <div className="aspect-[4/3] w-full overflow-hidden rounded-lg border border-[var(--card-border)] bg-[var(--card-alt)] sm:w-56">
                   {caption.image?.url ? (
                     <img
                       src={caption.image.url}
@@ -183,29 +211,42 @@ export default function CaptionList({ captions, canVote }: CaptionListProps) {
                       loading="lazy"
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-xs uppercase tracking-wide text-zinc-500">
+                    <div className="flex h-full items-center justify-center text-xs uppercase tracking-wide text-[var(--muted-strong)]">
                       No image
                     </div>
                   )}
                 </div>
 
                 <div className="flex-1">
-                  <h2 className="text-lg font-semibold">
+                  <h2 className="text-lg font-semibold text-[var(--foreground)]">
                     {caption.content ?? "Untitled caption"}
                   </h2>
-                  <p className="mt-2 text-sm text-zinc-300">
-                    Likes: {voteState.count}
-                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <p className="rounded-full border border-[var(--card-border)] bg-[var(--card-alt)] px-3 py-1 text-sm text-[var(--muted)]">
+                      Score: {voteState.count}
+                    </p>
+                    {feedback ? (
+                      <p
+                        className={`text-xs font-medium ${
+                          feedback.tone === "positive"
+                            ? "text-[var(--success)]"
+                            : "text-[var(--muted)]"
+                        }`}
+                      >
+                        {feedback.message}
+                      </p>
+                    ) : null}
+                  </div>
                   <div className="mt-6 flex items-center gap-3">
                     <button
                       type="button"
                       onClick={() => handleVote(caption.id, "up")}
                       aria-pressed={voteState.vote === "up"}
                       disabled={!canVote || pendingVotes[caption.id]}
-                      className={`inline-flex items-center justify-center transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                      className={`inline-flex h-11 w-11 items-center justify-center rounded-full border transition disabled:cursor-not-allowed disabled:opacity-50 ${
                         voteState.vote === "up"
-                          ? "text-white"
-                          : "text-zinc-500 hover:text-zinc-200"
+                          ? "border-[var(--card-border-strong)] bg-[var(--card-alt)] text-[var(--success)]"
+                          : "border-[var(--card-border)] text-[var(--muted)] hover:border-[var(--card-border-strong)] hover:text-[var(--foreground)]"
                       }`}
                     >
                       <span className="sr-only">Thumbs up</span>
@@ -223,10 +264,10 @@ export default function CaptionList({ captions, canVote }: CaptionListProps) {
                       onClick={() => handleVote(caption.id, "down")}
                       aria-pressed={voteState.vote === "down"}
                       disabled={!canVote || pendingVotes[caption.id]}
-                      className={`inline-flex items-center justify-center transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                      className={`inline-flex h-11 w-11 items-center justify-center rounded-full border transition disabled:cursor-not-allowed disabled:opacity-50 ${
                         voteState.vote === "down"
-                          ? "text-white"
-                          : "text-zinc-500 hover:text-zinc-200"
+                          ? "border-[var(--card-border-strong)] bg-[var(--card-alt)] text-[var(--warning)]"
+                          : "border-[var(--card-border)] text-[var(--muted)] hover:border-[var(--card-border-strong)] hover:text-[var(--foreground)]"
                       }`}
                     >
                       <span className="sr-only">Thumbs down</span>

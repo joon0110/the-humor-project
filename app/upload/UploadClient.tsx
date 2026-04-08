@@ -63,6 +63,9 @@ export default function UploadClient() {
   const [captions, setCaptions] = useState<CaptionRecord[] | null>(null);
   const [imageId, setImageId] = useState<string | null>(null);
   const [cdnUrl, setCdnUrl] = useState<string | null>(null);
+  const [publicSaveMessage, setPublicSaveMessage] = useState<string | null>(
+    null
+  );
 
   const previewUrl = useMemo(() => {
     if (!file) return null;
@@ -94,6 +97,7 @@ export default function UploadClient() {
     setImageId(null);
     setCdnUrl(null);
     setStepIndex(null);
+    setPublicSaveMessage(null);
 
     if (!file) {
       setErrorMessage("Select an image before running the pipeline.");
@@ -204,7 +208,15 @@ export default function UploadClient() {
           setErrorMessage(
             `Captions generated, but failed to mark them public: ${updateResult.error}`
           );
+        } else {
+          setPublicSaveMessage(
+            "Saved publicly. These captions now appear in the Public Caption Feed for voting and ranking."
+          );
         }
+      } else if (step4.length > 0) {
+        setPublicSaveMessage(
+          "Generated captions are private until you choose to save them publicly."
+        );
       }
     } catch (error) {
       const message =
@@ -217,32 +229,57 @@ export default function UploadClient() {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-      <section className="space-y-6 rounded-2xl border border-zinc-900 bg-zinc-950/80 p-6">
-        <div className="space-y-2">
-          <h2 className="text-xl font-semibold tracking-tight">
-            Upload an image
-          </h2>
-          <p className="text-sm text-zinc-400">
-            Runs the caption pipeline with your logged-in JWT.
-          </p>
+      <section className="space-y-8 rounded-3xl border border-[var(--card-border)] bg-[linear-gradient(145deg,var(--card),var(--card),var(--card-alt))] p-6 shadow-[0_18px_34px_rgba(0,0,0,0.12)]">
+        <div className="space-y-5">
+          <div className="inline-flex w-fit items-center rounded-full border border-[var(--card-border-strong)] bg-[var(--card-alt)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-[var(--warning)]">
+            Primary flow
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold tracking-tight text-[var(--foreground)]">
+              Upload image and run the caption pipeline
+            </h2>
+            <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">
+              Follow the steps in order. Upload an image, run the pipeline,
+              review your generated captions, then save them publicly if you
+              want them included in ranking and voting.
+            </p>
+          </div>
+          <ol className="grid gap-3 sm:grid-cols-2">
+            {[
+              "Upload image",
+              "Run pipeline",
+              "Review captions",
+              "Save or rank",
+            ].map((step, index) => (
+              <li
+                key={step}
+                className="rounded-2xl border border-[var(--card-border)] bg-[var(--card-alt)] px-4 py-3 text-sm text-[var(--foreground)]"
+              >
+                <span className="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--foreground)] text-xs font-bold text-[var(--background)]">
+                  {index + 1}
+                </span>
+                <div className="font-medium">{step}</div>
+              </li>
+            ))}
+          </ol>
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-2">
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-3">
             <label
               htmlFor="upload-file"
-              className="text-xs font-semibold uppercase tracking-wide text-zinc-500"
+              className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-strong)]"
             >
-              Image file
+              Step 1: Upload image
             </label>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--card-border)] bg-[var(--card-alt)] p-4">
               <label
                 htmlFor="upload-file"
-                className="inline-flex items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-zinc-800"
+                className="inline-flex items-center justify-center rounded-full border border-[var(--card-border-strong)] bg-[var(--card)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--card-alt)]"
               >
                 Choose file
               </label>
-              <span className="text-xs text-zinc-500">
+              <span className="text-sm text-[var(--muted)]">
                 {file ? file.name : "No file chosen"}
               </span>
             </div>
@@ -259,51 +296,70 @@ export default function UploadClient() {
                 setCdnUrl(null);
                 setErrorMessage(null);
                 setStepIndex(null);
+                setPublicSaveMessage(null);
               }}
             />
           </div>
 
-          <label className="flex items-center gap-3 text-sm text-zinc-200">
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-zinc-700 bg-zinc-950"
-              checked={isPublic}
-              onChange={(event) => setIsPublic(event.target.checked)}
-            />
-            Save generated captions as public
-          </label>
+          <div className="space-y-3 rounded-2xl border border-[var(--card-border)] bg-[var(--card-alt)] p-4">
+            <div className="space-y-1">
+              <div className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-strong)]">
+                Step 2: Run pipeline
+              </div>
+              <p className="text-sm text-[var(--muted)]">
+                Generate caption options from the uploaded image.
+              </p>
+            </div>
+            <label className="flex items-start gap-3 text-sm text-[var(--foreground)]">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-4 w-4 rounded border-[var(--card-border-strong)] bg-[var(--card)]"
+                checked={isPublic}
+                onChange={(event) => setIsPublic(event.target.checked)}
+              />
+              <span className="space-y-1">
+                <span className="block font-medium">
+                  Save generated captions publicly after generation
+                </span>
+                <span className="block text-xs leading-5 text-[var(--muted)]">
+                  Public captions appear in the Public Caption Feed where other
+                  users can vote on them and sort by likes.
+                </span>
+              </span>
+            </label>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded-full border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {isSubmitting ? "Running pipeline..." : "Run pipeline"}
-          </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="inline-flex min-w-[13rem] items-center justify-center rounded-full border border-[var(--cta-border)] bg-[var(--cta-bg)] px-6 py-3 text-sm font-semibold text-[var(--cta-text)] shadow-[0_10px_20px_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 hover:bg-[var(--cta-hover)] disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isSubmitting ? "Running pipeline..." : "Run Caption Pipeline"}
+            </button>
+          </div>
         </form>
 
         {previewUrl ? (
-          <div className="overflow-hidden rounded-xl border border-zinc-800">
+          <div className="overflow-hidden rounded-2xl border border-[var(--card-border)] shadow-lg">
             <img
               src={previewUrl}
               alt="Upload preview"
-              className="h-64 w-full object-cover"
+              className="h-72 w-full object-cover"
             />
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-zinc-800 bg-zinc-950 p-6 text-sm text-zinc-500">
+          <div className="rounded-2xl border border-dashed border-[var(--card-border)] bg-[var(--card-alt)] p-8 text-sm text-[var(--muted)]">
             Upload an image to preview it here.
           </div>
         )}
       </section>
 
-      <section className="space-y-6 rounded-2xl border border-zinc-900 bg-zinc-950/80 p-6">
+      <section className="space-y-6 rounded-3xl border border-[var(--card-border)] bg-[var(--card)] p-6 shadow-sm">
         <div className="space-y-2">
           <h2 className="text-xl font-semibold tracking-tight">
-            Pipeline status
+            Review and save
           </h2>
-          <p className="text-sm text-zinc-400">
-            Steps will update as the API responds.
+          <p className="text-sm text-[var(--muted)]">
+            Watch pipeline progress, then review your generated captions.
           </p>
         </div>
 
@@ -316,10 +372,10 @@ export default function UploadClient() {
                 key={step}
                 className={`rounded-lg border px-3 py-2 ${
                   isActive
-                    ? "border-zinc-600 bg-zinc-900 text-white"
+                    ? "border-[var(--card-border-strong)] bg-[var(--card-alt)] text-[var(--foreground)]"
                     : isDone
-                      ? "border-zinc-800 bg-zinc-950 text-zinc-300"
-                      : "border-zinc-900 bg-black text-zinc-500"
+                      ? "border-[var(--card-border)] bg-[var(--card)] text-[var(--muted)]"
+                      : "border-[var(--card-border)] bg-[var(--background)] text-[var(--muted-strong)]"
                 }`}
               >
                 {step}
@@ -329,25 +385,31 @@ export default function UploadClient() {
         </ol>
 
         {errorMessage ? (
-          <div className="rounded-lg border border-red-900/40 bg-red-950/40 p-4 text-sm text-red-200">
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-[var(--danger)]">
             {errorMessage}
           </div>
         ) : null}
 
         {imageId ? (
-          <div className="space-y-1 text-xs text-zinc-400">
+          <div className="space-y-1 text-xs text-[var(--muted)]">
             <div>Image ID: {imageId}</div>
             {cdnUrl ? <div>CDN URL: {cdnUrl}</div> : null}
           </div>
         ) : null}
 
+        {publicSaveMessage ? (
+          <div className="rounded-xl border border-[var(--card-border-strong)] bg-[var(--card-alt)] p-4 text-sm text-[var(--success)]">
+            {publicSaveMessage}
+          </div>
+        ) : null}
+
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-            Captions
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted-strong)]">
+            Step 3: Your Generated Captions
           </h3>
           {captions ? (
             captions.length === 0 ? (
-              <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-400">
+              <div className="rounded-lg border border-[var(--card-border)] bg-[var(--card)] p-4 text-sm text-[var(--muted)]">
                 No captions returned.
               </div>
             ) : (
@@ -355,7 +417,7 @@ export default function UploadClient() {
                 {captions.map((caption) => (
                   <li
                     key={caption.id}
-                    className="rounded-lg border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-200"
+                    className="rounded-lg border border-[var(--card-border)] bg-[var(--card)] p-4 text-sm text-[var(--foreground)]"
                   >
                     {caption.content ?? "Untitled caption"}
                   </li>
@@ -363,16 +425,18 @@ export default function UploadClient() {
               </ul>
             )
           ) : (
-            <div className="rounded-lg border border-zinc-900 bg-black/60 p-4 text-sm text-zinc-500">
+            <div className="rounded-lg border border-[var(--card-border)] bg-[var(--card-alt)] p-4 text-sm text-[var(--muted)]">
               <div className="flex items-center gap-3">
                 {isSubmitting ? (
                   <span
                     aria-hidden="true"
-                    className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-700 border-t-zinc-300"
+                    className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--card-border-strong)] border-t-[var(--foreground)]"
                   />
                 ) : null}
                 <span>
-                  Captions will appear here after the pipeline finishes.
+                  Captions will appear here after the pipeline finishes. Save
+                  them publicly if you want them included in the Public Caption
+                  Feed.
                 </span>
               </div>
             </div>

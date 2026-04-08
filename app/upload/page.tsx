@@ -15,9 +15,12 @@ export default async function UploadPage() {
     <SidebarTabs activeTab="upload" displayName={displayName}>
       <div className="space-y-6">
         <header className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight">Upload</h1>
-          <p className="text-sm text-zinc-400">
-            Upload an image and generate captions via the pipeline.
+          <h1 className="text-3xl font-semibold tracking-tight">
+            Create Captions
+          </h1>
+          <p className="text-sm text-[var(--muted)]">
+            Upload an image, run the pipeline, review generated captions, then
+            save them publicly if you want them ranked in the feed.
           </p>
         </header>
 
