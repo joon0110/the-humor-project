@@ -76,7 +76,7 @@ export default async function CaptionsPage({
           <CaptionSortControls sort={sort} />
         </header>
 
-        <div className="max-h-[calc(100vh-12rem)] overflow-y-auto pr-2">
+        <div className="pr-2">
           {errorMessage ? (
             <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-[var(--danger)]">
               Failed to load captions: {errorMessage}
